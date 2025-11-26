@@ -1,0 +1,58 @@
+
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>參與調查</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <p id="msg">載入中，請稍候…</p>
+
+  <script>
+
+    const LIFF_ID   = '2002503281-jBQBAzYE';
+    const FORM_BASE = 'https://docs.google.com/forms/d/e/1FAIpQLSehZ4xg2XMXpliyUJ28TfegDNMeOJKHfHTav7FHKDjDHdmTCQ/viewform?usp=pp_url';
+    const ENTRY_ID  = 'entry.945625725'; // 你那個隱藏欄位
+    const PAGE_HIST = '&pageHistory=0,1,2'; // 依你的 section 數調整
+
+
+    (async () => {
+      const $msg = document.getElementById('msg');
+
+      /* 1️⃣ 初始化 LIFF */
+      try {
+        await liff.init({ liffId: LIFF_ID });
+        $msg.textContent = 'LIFF init-OK';
+      } catch (e) {
+        $msg.textContent = '❌ LIFF init 失敗：' + e;
+        console.error(e);
+        return;
+      }
+
+      /* 2️⃣ 要求登入（若尚未登入） */
+      if (!liff.isLoggedIn()) {
+        liff.login({ scope: 'profile openid' });
+        return; // 重新導回後再往下跑
+      }
+
+      /* 3️⃣ 抓 userId（改用 getProfile，比 ID Token 穩） */
+      let userId = '';
+      try {
+        const profile = await liff.getProfile();
+        userId = profile.userId;              // 只需 scope=profile
+        $msg.textContent += ' → 取到 userId';
+      } catch (e) {
+        $msg.textContent = '❌ 取 userId 失敗：' + e;
+        console.error(e);
+        return;
+      }
+
+      /* 4️⃣ Redirect 到 Google Form（帶 userId 預填） */
+      const url = `${FORM_BASE}&${ENTRY_ID}=${encodeURIComponent(userId)}${PAGE_HIST}`;
+      window.location.replace(url);
+    })();
+  </script>
+</body>
+</html>
