@@ -24,9 +24,9 @@
       /* 1️⃣ 初始化 LIFF */
       try {
         await liff.init({ liffId: LIFF_ID });
-        $msg.textContent = 'LIFF init-OK';
+        $msg.textContent = '載入中，請稍候…';
       } catch (e) {
-        $msg.textContent = '❌ LIFF init 失敗：' + e;
+        $msg.textContent = '❌ 載入失敗：' + e;
         console.error(e);
         return;
       }
@@ -56,3 +56,4 @@
   </script>
 </body>
 </html>
+
