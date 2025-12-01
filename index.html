@@ -42,7 +42,7 @@
       try {
         const profile = await liff.getProfile();
         userId = profile.userId;              // 只需 scope=profile
-        $msg.textContent += ' → 取到 userId';
+        $msg.textContent += ' → 取得 userId';
       } catch (e) {
         $msg.textContent = '❌ 取 userId 失敗：' + e;
         console.error(e);
@@ -56,4 +56,5 @@
   </script>
 </body>
 </html>
+
 
