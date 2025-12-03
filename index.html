@@ -1,5 +1,3 @@
-
-
 <!doctype html>
 <html>
 <head>
@@ -11,50 +9,45 @@
   <p id="msg">載入中，請稍候…</p>
 
   <script>
-
-    const LIFF_ID   = '2002503281-jBQBAzYE';
-    const FORM_BASE = 'https://docs.google.com/forms/d/e/1FAIpQLSehZ4xg2XMXpliyUJ28TfegDNMeOJKHfHTav7FHKDjDHdmTCQ/viewform?usp=pp_url';
-    const ENTRY_ID  = 'entry.945625725'; // 你那個隱藏欄位
-    const PAGE_HIST = '&pageHistory=0,1,2'; // 依你的 section 數調整
-
+    const LIFF_ID  = '2002503281-jBQBAzYE';  // 與原來相同
+    const DEST_BASE = 'https://kittest.hdfs.ntnu.edu.tw/questionnaire/lineUserInfo.aspx';
+    const PARAM_KEY = 'lu';                  // 新的查詢參數名稱
 
     (async () => {
       const $msg = document.getElementById('msg');
 
-      /* 1️⃣ 初始化 LIFF */
+      /* 1. 初始化 LIFF */
       try {
         await liff.init({ liffId: LIFF_ID });
         $msg.textContent = '載入中，請稍候…';
       } catch (e) {
-        $msg.textContent = '❌ 載入失敗：' + e;
+        $msg.textContent = '載入失敗：' + e;
         console.error(e);
         return;
       }
 
-      /* 2️⃣ 要求登入（若尚未登入） */
+      /* 2. 尚未登入就導向 LINE 授權 */
       if (!liff.isLoggedIn()) {
         liff.login({ scope: 'profile openid' });
-        return; // 重新導回後再往下跑
+        return; 
       }
 
-      /* 3️⃣ 抓 userId（改用 getProfile，比 ID Token 穩） */
+      /* 3. 取得使用者 userId */
       let userId = '';
       try {
         const profile = await liff.getProfile();
-        userId = profile.userId;              // 只需 scope=profile
-        $msg.textContent += ' → 取得 userId';
+        userId = profile.userId;
+        $msg.textContent += ' → 取到 userId';
       } catch (e) {
-        $msg.textContent = '❌ 取 userId 失敗：' + e;
+        $msg.textContent = '取 userId 失敗：' + e;
         console.error(e);
         return;
       }
 
-      /* 4️⃣ Redirect 到 Google Form（帶 userId 預填） */
-      const url = `${FORM_BASE}&${ENTRY_ID}=${encodeURIComponent(userId)}${PAGE_HIST}`;
+      /* 4. 導向新的問卷頁（帶 ?lu=userId） */
+      const url = `${DEST_BASE}?${PARAM_KEY}=${encodeURIComponent(userId)}`;
       window.location.replace(url);
     })();
   </script>
 </body>
 </html>
-
-
