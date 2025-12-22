@@ -14,10 +14,10 @@ flowchart TD
     SURVEY_NEW["save_survey.xlsx<br/>(新檔)"]
     SQL[(SQL Server<br/>Samples╱AllProgress)]
     LINE[LINE Messaging API]
-    TEACHER["授課老師<br/>(LINE user)"]
+    TEACHER["受訪老師<br/>(LINE user)"]
 
     %% 資料流 ----------------------------
-    PY -- "讀舊 MsgSent≠空\n→ save_survey_0.xlsx" --> SURVEY_OLD
+    PY -- "讀舊 MsgSent ≠ 空 →→→ save_survey_0.xlsx" --> SURVEY_OLD
     PY --> SURVEY0
 
     PY -- "讀最新回應" --> SAVE
