@@ -1,3 +1,6 @@
+## 系統架構圖
+
+```mermaid
 flowchart TD
     subgraph "排程觸發｜每天 02:00"
         SCHED[Python Scheduler<br>read_save_latest_and_notify.py]
