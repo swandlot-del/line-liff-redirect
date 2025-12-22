@@ -1,29 +1,26 @@
 flowchart TD
-    S0([啟動腳本]) --> C1{{save_survey.xlsx\n是否存在?}}
+    subgraph "排程觸發｜每天 02:00"
+        SCHED[Python Scheduler<br>read_save_latest_and_notify.py]
+    end
 
-    C1 -- "否" --> R1[讀取 save.xlsx\n取 create_time 最新一筆]
-    C1 -- "是" --> B1[讀取 save_survey.xlsx\n篩 MsgSent≠空\n存 save_survey_0.xlsx]
-    B1 --> R1
+    %% 主要資源 ----------------------------------------------------------------
+    SAVE[save.xlsx]
+    SURVEY_OLD[save_survey.xlsx<br>(舊資料)]
+    SURVEY_NEW[save_survey.xlsx<br>(更新後)]
+    SQL[(SQL Server<br>Samples╱AllProgress)]
+    LINE[LINE Messaging API]
+    TEACHER[授課老師<br>(LINE user)]
 
-    R1 --> Q1[連 SQL Server\n撈 TeacherQSentDT]
-    Q1 --> F1[與最新樣本合併\n→ save_survey_1.xlsx]
+    %% 資料流 ------------------------------------------------------------------
+    SCHED -- "讀取最新回應" --> SAVE
+    SCHED -- "讀取舊 MsgSent\n→ save_survey_0.xlsx" --> SURVEY_OLD
+    SCHED -- "合併比對\n→ save_survey_1.xlsx" --> SAVE
+    SCHED -- "查詢 TeacherQSentDT" --> SQL
+    SCHED -- "寫回最終結果" --> SURVEY_NEW
 
-    F1 --> M1[concat save_survey_0 + save_survey_1\nSampleID 去重（舊優先）]
+    SCHED -- "推播尚未標記者" --> LINE
+    LINE -- "訊息" --> TEACHER
 
-    M1 --> L1{{MsgSent 空白且\nTeacherQSentDT 有值?}}
-
-    L1 -- "否" --> W1[寫回 save_survey.xlsx]
-    L1 -- "是" --> V1[驗證 applyer_line_id\n(ok_uid)]
-
-    V1 -- "無效 UID" --> I1[註記 INVALID_UID]
-    V1 -- "合法 UID" --> P1[push_line 發送訊息]
-
-    P1 -- "成功" --> S1[MsgSent = 時戳]
-    P1 -- "失敗" --> F2[MsgSent = FAIL:code]
-
-    I1 --> N1[處理下一筆]
-    S1 --> N1
-    F2 --> N1
-    N1 --> L1
-
-    W1 --> E0([結束])
+    %% 樣式 --------------------------------------------------------------------
+    classDef process fill:#FDF2E9,stroke:#D35400,stroke-width:1px
+    class SCHED process
