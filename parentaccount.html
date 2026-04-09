@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>身分選擇</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <p id="msg">載入中，請稍候…</p>
+
+  <script>
+    const LIFF_ID  = '2002503281-K3brzQMK';  // 與原來相同
+    const DEST_BASE = 'https://kittest.hdfs.ntnu.edu.tw/Questionnaire/ParentAccount.aspx';
+    const PARAM_KEY = 'lu';                  // 新的查詢參數名稱
+
+    (async () => {
+      const $msg = document.getElementById('msg');
+
+      /* 1. 初始化 LIFF */
+      try {
+        await liff.init({ liffId: LIFF_ID });
+        $msg.textContent = '載入中，請稍候…';
+      } catch (e) {
+        $msg.textContent = '載入失敗：' + e;
+        console.error(e);
+        return;
+      }
+
+      /* 2. 尚未登入就導向 LINE 授權 */
+      if (!liff.isLoggedIn()) {
+        liff.login({ scope: 'profile openid' });
+        return; 
+      }
+
+      /* 3. 取得使用者 userId */
+      let userId = '';
+      try {
+        const profile = await liff.getProfile();
+        userId = profile.userId;
+        $msg.textContent += ' → 取得 userId';
+      } catch (e) {
+        $msg.textContent = '取 userId 失敗：' + e;
+        console.error(e);
+        return;
+      }
+
+      /* 4. 導向新的問卷頁（帶 ?lu=userId） */
+      const url = `${DEST_BASE}?${PARAM_KEY}=${encodeURIComponent(userId)}`;
+      window.location.replace(url);
+    })();
+  </script>
+</body>
+</html>
